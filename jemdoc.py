@@ -529,6 +529,8 @@ def replaceequations(b, f):
       fn = fn + '-' + str(f.eqdpi)
       (depth, fullfn) = geneq(f, eq, dpi=f.eqdpi, wl=wl, outname=fn)
       fullfn = fullfn.replace('\\', '/')
+      # this is a REALLY BAD hack, but gets images linked correctly.
+      fullfn = fullfn[5:]
 
       offset = depth - f.baseline + 1
 
@@ -1536,7 +1538,7 @@ def main():
     infile = open(inname, 'rUb')
     outfile = open(thisout, 'w')
 
-    f = controlstruct(infile, outfile, conf, inname)
+    f = controlstruct(infile, outfile, conf, inname, eqdir=outname + "eqs/")
     procfile(f)
 def quote(s):
   return re.sub(r"""[\\*/+"'<>&$%\.~[\]-]""", r'\\\g<0>', s)
