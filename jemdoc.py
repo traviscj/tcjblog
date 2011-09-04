@@ -328,9 +328,14 @@ def insertmenuitems(f, mname, current, prefix):
     if l == '':
       continue
 
-    r = re.match(r'\s*(.*?)\s*\[(.*)\]', l)
+    rmulti = re.match(r'\s*(.*?):\s*.*\[(.*)\].*', l)
+    rnormal = re.match(r'\s*(.*?)\s*\[(.*)\]', l)
 
-    if r: # then we have a menu item.
+    if rmulti:
+	  multiLinkLine = br(l,f)
+	  hb(f.outf, f.conf['menuitemsdirect'], multiLinkLine)
+    elif rnormal: # then we have a menu item.
+      r = rnormal
       link = r.group(2)
       # Don't use prefix if we have an absolute link.
       if '://' not in r.group(2):
