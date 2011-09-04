@@ -192,6 +192,9 @@ def standardconf():
   [menuitem]
   <div class="menu-item"><a href="|1">|2</a></div>
 
+  [menuitemsdirect]
+  <div class="many-menu-item">|</div>
+
   [specificcss]
   <link rel="stylesheet" href="|" type="text/css" />
 
