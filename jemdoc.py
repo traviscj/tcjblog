@@ -457,8 +457,6 @@ def np(f, withcount=False, eatblanks=True):
   else:
     return s[:-1]
 
-def quote(s):
-  return re.sub(r"""[\\*/+"'<>&$%\.~[\]-]""", r'\\\g<0>', s)
 
 def replacequoted(b):
   """Quotes {{raw html}} sections."""
@@ -1540,6 +1538,8 @@ def main():
 
     f = controlstruct(infile, outfile, conf, inname)
     procfile(f)
+def quote(s):
+  return re.sub(r"""[\\*/+"'<>&$%\.~[\]-]""", r'\\\g<0>', s)
 
 #
 if __name__ == '__main__':
