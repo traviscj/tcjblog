@@ -124,7 +124,9 @@ for year in years:
 MENU.write("by category\n")
 for cat in categories.iterkeys():
 	MENU.write("\t%s\t\t[category_%s.html]\n"%(cat,cat))
-
+MENU.write("other\n")
+MENU.write("\tjemblog [https://github.com/traviscj/jemblog]\n")
+MENU.write("\trss [rss.xml]\n")
 
 # setup the main blog layout
 for page, entries in pageDict.iteritems():
@@ -198,4 +200,70 @@ for category in catList:
 		f.write(content)
 		f.write("\n")
 	f.close()
+
+html_escape_table = {
+	"&": "&amp;",
+	'"': "&quot;",
+	"'": "&apos;",
+	">": "&gt;",
+	"<": "&lt;",
+	}
+def html_escape(text):
+	"""Produce entities within text."""
+	return "".join(html_escape_table.get(c,c) for c in text)
+
+import datetime, tempfile
+rss = open("html/rss.xml",'w')
+rssDate = "%a, %d %b %Y %X +0000"
+lastYearS,lastMonthS,lastDayS = blogEntries[0][3].split("/")
+lastYear,lastMonth,lastDay = int(lastYearS), int(lastMonthS), int(lastDayS)
+rss.write("""<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+        <title>%s</title>
+        <description>%s</description>
+        <link>%s</link>
+        <lastBuildDate>%s</lastBuildDate>
+        <pubDate>%s</pubDate>""" % ("~traviscj/", "feed for traviscj.com/blog", "http://traviscj.com/blog",
+								datetime.datetime.utcnow().strftime(rssDate),datetime.date(lastYear,lastMonth,lastDay).strftime(rssDate)))
+import subprocess,os
+from xml.sax.saxutils import escape
+for entry in blogEntries[0:10]:
+	entryNum, title, author, date, category, content = entry
+	yearS, monthS, dayS = date.split("/")
+	year,month,day = int(yearS), int(monthS), int(dayS)
+
+	print title
+	title = escape(title)
+	print title
+	#content = html_escape(content)
+
+	tmpfd,tmpFileName = tempfile.mkstemp()
+	parsedfd,parsedFileName = tempfile.mkstemp()
+	tmpFile = open(tmpFileName,'w')
+	parsedFile = open(parsedFileName)
+	tmpFile.write("# jemdoc: \n")
+	tmpFile.write(content)
+	tmpFile.close()
+	subprocess.call(['/usr/bin/python','jemdoc.py','-o',parsedFile.name,tmpFile.name])
+	formattedLines = parsedFile.readlines()
+	parsedFile.close()
+	#print parsedFileName, tmpFileName
+	os.remove(parsedFileName)
+	os.remove(tmpFileName)
+	formattedcontent = "\n".join(formattedLines[10:-2])
+	formattedcontent = escape(formattedcontent)
+	rss.write("""
+        <item>
+                <title>%s</title>
+                <description>%s</description>
+                <link>%s</link>
+                <guid>%s</guid>
+                <pubDate>%s </pubDate>
+        </item>
+	""" % (title, formattedcontent, "http://traviscj.com/blog/"+friendly(title)+".html", friendly(title), datetime.date(year,month,day).strftime(rssDate)))
+ 
+rss.write("""
+</channel>
+</rss>""")
 
