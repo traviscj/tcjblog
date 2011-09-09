@@ -54,11 +54,17 @@ for entry in blogEntries:
 	
 lastPage = len(blogEntries)/10
 
+def friendly(str):
+	from re import sub
+	return sub("'|:|!|&|/|\/|\(|\)|\?|,", "", str).replace(" ", "_").replace("__","_").lower()
+	#return str.replace(" ", "_").replace("'","").replace(":","").replace("!","").replace("&", "and").replace("/","_or_").lower()
+
 dates = {}
 byMonthDict = {}
 categories = {}
-for entry in blogEntries:
-	entryNum, title, author, date, category, content = entry
+#for entry in blogEntries:
+for i in range(len(blogEntries)):
+	entryNum, title, author, date, category, content = blogEntries[i]
 	year, month, day = date.split("/")
 	#print year, month, day
 	if year in dates:
@@ -78,19 +84,22 @@ for entry in blogEntries:
 		categories[category] = [entry]
 		
 	date = date.replace("/", "\/")
-	f=open("entry%0.4d.jemdoc"%entryNum,'w')
+	filetitle = friendly(title)
+	f=open(filetitle+".jemdoc",'w')
 	f.write("# jemdoc: menu{MENU2}{index.html}\n")
 	f.write("= %s\n"%(title))
 	f.write("== from %s\n\n"%(date))
 	f.write(content)
 	f.write("\n")
-	if entryNum != 0:
-		f.write("[entry%0.4d.html older]\n"%(entryNum-1));
+	if i+1 != len(blogEntries):
+		prevtitle = friendly(blogEntries[i+1][1])
+		f.write("[%s.html older]\n"%(prevtitle))
 	else:
 		f.write("older\n");
 	#print entryNum, len(blogEntries)
-	if entryNum+1 != len(blogEntries):
-		f.write("[entry%0.4d.html newer]\n"%(entryNum+1));
+	if i != 0:
+		nexttitle = friendly(blogEntries[i-1][1])
+		f.write("[%s.html newer]\n"%(nexttitle))
 	else:
 		f.write("newer\n");
 	f.close()
@@ -99,7 +108,7 @@ for entry in blogEntries:
 MENU = open("MENU2", 'w')
 MENU.write("navigation\n")
 MENU.write("\tback to main site		[..]\n")
-MENU.write("\tfirst blog page		[blog0.html]\n")
+MENU.write("\tfirst blog page		[index.html]\n")
 MENU.write("by month\n")
 years = dates.keys()
 years.sort()
@@ -130,7 +139,7 @@ for page, entries in pageDict.iteritems():
 	for entry in entries:
 		entryNum, title, author, date, category, content = entry
 		date = date.replace("/", "\/")
-		f.write("== [entry%0.4d.html %s] (from %s)\n"%(entryNum, title, date))
+		f.write("== [%s.html %s] (from %s)\n"%(friendly(title), title, date))
 		f.write(content)
 		f.write("\n")
 	f.write("\n\n")
@@ -142,7 +151,7 @@ for page, entries in pageDict.iteritems():
 		f.write("[index.html newer page]\n")
 	else:
 		f.write("newer page\n")
-	first, last = "newest", "[blog%d.html oldest]"%(lastPage)
+	first, last = "newest", "[index%d.html oldest]"%(lastPage)
 	if page != 0:
 		first = "[index.html newest]"
 	if page == lastPage:
@@ -169,7 +178,7 @@ for yearmonth in yearmonthList:
 	for entry in entries:
 		entryNum, title, author, date, category, content = entry
 		date = date.replace("/", "\/")
-		f.write("== [entry%0.4d.html %s] (from %s)\n"%(entryNum, title, date))
+		f.write("== [%s.html %s] (from %s)\n"%(friendly(title), title, date))
 		f.write(content)
 		f.write("\n")
 	f.close()
@@ -185,7 +194,7 @@ for category in catList:
 	for entry in entries:
 		entryNum, title, author, date, category, content = entry
 		date = date.replace("/", "\/")
-		f.write("== [entry%0.4d.html %s] (from %s)\n"%(entryNum, title, date))
+		f.write("== [%s.html %s] (from %s)\n"%(friendly(title), title, date))
 		f.write(content)
 		f.write("\n")
 	f.close()
